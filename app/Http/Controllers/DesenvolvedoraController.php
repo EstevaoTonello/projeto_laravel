@@ -7,59 +7,66 @@ use Illuminate\Http\Request;
 
 class DesenvolvedoraController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private function validar(Request $request)
+    {
+        return $request->validate([
+            'nome' => ['required', 'string', 'max:255'],
+            'pais' => ['required', 'string', 'max:255'],
+            'ano_fundacao' => ['required', 'integer', 'between:1800,'.date('Y')],
+        ], [
+            'nome.required' => 'Informe o nome da desenvolvedora.',
+            'nome.max' => 'O nome deve ter no máximo 255 caracteres.',
+            'pais.required' => 'Informe o país.',
+            'pais.max' => 'O país deve ter no máximo 255 caracteres.',
+            'ano_fundacao.required' => 'Informe o ano de fundação.',
+            'ano_fundacao.integer' => 'O ano deve ser um número inteiro.',
+            'ano_fundacao.between' => 'Informe um ano entre 1800 e o ano atual.',
+        ]);
+    }
+
     public function index()
     {
-        //
+        $desenvolvedoras = Desenvolvedora::orderBy('nome')->get();
+
+        return view('desenvolvedoras.index', compact('desenvolvedoras'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('desenvolvedoras.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Desenvolvedora::create($this->validar($request));
+
+        return redirect()->route('desenvolvedoras.index')
+            ->with('sucesso', 'Desenvolvedora cadastrada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Desenvolvedora $desenvolvedora)
     {
-        //
+        return view('desenvolvedoras.show', compact('desenvolvedora'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Desenvolvedora $desenvolvedora)
     {
-        //
+        return view('desenvolvedoras.edit', compact('desenvolvedora'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Desenvolvedora $desenvolvedora)
     {
-        //
+        $desenvolvedora->update($this->validar($request));
+
+        return redirect()->route('desenvolvedoras.index')
+            ->with('sucesso', 'Desenvolvedora atualizada com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Desenvolvedora $desenvolvedora)
     {
-        //
+        $desenvolvedora->delete();
+
+        return redirect()->route('desenvolvedoras.index')
+            ->with('sucesso', 'Desenvolvedora excluída com sucesso!');
     }
 }

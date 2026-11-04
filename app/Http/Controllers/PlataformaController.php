@@ -7,59 +7,62 @@ use Illuminate\Http\Request;
 
 class PlataformaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private function validar(Request $request)
+    {
+        return $request->validate([
+            'nome' => ['required', 'string', 'max:255'],
+            'fabricante' => ['required', 'string', 'max:255'],
+        ], [
+            'nome.required' => 'Informe o nome da plataforma.',
+            'nome.max' => 'O nome deve ter no máximo 255 caracteres.',
+            'fabricante.required' => 'Informe o fabricante.',
+            'fabricante.max' => 'O fabricante deve ter no máximo 255 caracteres.',
+        ]);
+    }
+
     public function index()
     {
-        //
+        $plataformas = Plataforma::orderBy('nome')->get();
+
+        return view('plataformas.index', compact('plataformas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('plataformas.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Plataforma::create($this->validar($request));
+
+        return redirect()->route('plataformas.index')
+            ->with('sucesso', 'Plataforma cadastrada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Plataforma $plataforma)
     {
-        //
+        return view('plataformas.show', compact('plataforma'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Plataforma $plataforma)
     {
-        //
+        return view('plataformas.edit', compact('plataforma'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Plataforma $plataforma)
     {
-        //
+        $plataforma->update($this->validar($request));
+
+        return redirect()->route('plataformas.index')
+            ->with('sucesso', 'Plataforma atualizada com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Plataforma $plataforma)
     {
-        //
+        $plataforma->delete();
+
+        return redirect()->route('plataformas.index')
+            ->with('sucesso', 'Plataforma excluída com sucesso!');
     }
 }
